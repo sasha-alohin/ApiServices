@@ -23,6 +23,8 @@ repositories {
 
 
 dependencies {
+	compile group: 'org.springframework.boot', name: 'spring-boot-configuration-processor', version: '1.4.0.RELEASE'
+	compile group: 'org.twitter4j', name: 'twitter4j-core', version: '4.0.2'
 	compile group: 'org.json', name: 'json', version: '20160810'
 	compile('org.springframework.boot:spring-boot-starter-web')
 	testCompile('org.springframework.boot:spring-boot-starter-test')

@@ -13,6 +13,7 @@ import com.softbistro.api.github.component.entity.GitRepository;
 import com.softbistro.api.github.component.entity.User;
 import com.softbistro.api.github.services.GitHubService;
 
+@RequestMapping(value = "/github")
 @RestController
 public class GitHubController {
 
