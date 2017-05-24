@@ -3,7 +3,7 @@ package com.softbistro.api.github.component.interfaces;
 import java.io.IOException;
 import java.util.List;
 
-import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.GitRepository;
 import com.softbistro.api.github.component.entity.User;
 
 public interface GitHubInterface {
@@ -26,7 +26,7 @@ public interface GitHubInterface {
 	 *            - repository name
 	 * @return repository data
 	 */
-	public Repository getRepositoryInfo(String user, String repository) throws Exception;
+	public GitRepository getRepositoryInfo(String user, String repository) throws Exception;
 
 	/**
 	 * Get repositories of user
@@ -35,5 +35,5 @@ public interface GitHubInterface {
 	 *            - user name
 	 * @return repositories data
 	 */
-	public List<Repository> getUserRepositories(String user) throws Exception;
+	public List<GitRepository> getUserRepositories(String user) throws Exception;
 }

@@ -1,6 +1,6 @@
 package com.softbistro.api.github.component.entity;
 
-public class Repository {
+public class GitRepository {
 
 	private Integer id;
 	private String name;
@@ -8,7 +8,7 @@ public class Repository {
 	private String url;
 	private String language;
 	
-	public Repository(Integer id, String name, String description, String url, String language) {
+	public GitRepository(Integer id, String name, String description, String url, String language) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -16,7 +16,7 @@ public class Repository {
 		this.language = language;
 	}
 
-	public Repository() {
+	public GitRepository() {
 	}
 
 	public Integer getId() {

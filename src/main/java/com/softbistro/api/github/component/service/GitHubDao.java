@@ -14,10 +14,12 @@ import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.GitRepository;
 import com.softbistro.api.github.component.entity.User;
 import com.softbistro.api.github.component.interfaces.GitHubInterface;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public class GitHubDao implements GitHubInterface {
 	private InputStream is;
 	private JSONObject json;
@@ -57,13 +59,13 @@ public class GitHubDao implements GitHubInterface {
 	 * @return repository data
 	 */
 	@Override
-	public Repository getRepositoryInfo(String user, String repository) throws IOException {
+	public GitRepository getRepositoryInfo(String user, String repository) throws IOException {
 		is = new URL(urlForRepositoryInfo + user + "/" + repository).openStream();
 		try {
 			rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 			jsonText = readAll(rd);
 			json = new JSONObject(jsonText);
-			return new Repository(json.getInt("id"), json.getString("name"), json.getString("description"),
+			return new GitRepository(json.getInt("id"), json.getString("name"), json.getString("description"),
 					json.getString("html_url"), json.getString("language"));
 		} finally {
 			is.close();
@@ -78,9 +80,9 @@ public class GitHubDao implements GitHubInterface {
 	 * @return repositories data
 	 */
 	@Override
-	public List<Repository> getUserRepositories(String user) throws Exception {
+	public List<GitRepository> getUserRepositories(String user) throws Exception {
 		is = new URL(urlForUser + user + "/repos").openStream();
-		List<Repository> repositories = new ArrayList<>();
+		List<GitRepository> repositories = new ArrayList<>();
 		rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 		jsonText = readAll(rd);
 		JSONArray jsonArray = new JSONArray(jsonText);
@@ -88,7 +90,7 @@ public class GitHubDao implements GitHubInterface {
 			System.out.println(object);
 			json = new JSONObject(object.toString());
 			System.out.println(json.get("description"));
-			repositories.add(new Repository(json.getInt("id"), json.getString("name"),
+			repositories.add(new GitRepository(json.getInt("id"), json.getString("name"),
 					Optional.of(json.get("description")).map(Object::toString).orElse(null), json.getString("html_url"),
 					Optional.of(json.get("language")).map(Object::toString).orElse(null)));
 		}

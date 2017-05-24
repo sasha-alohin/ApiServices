@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.GitRepository;
 import com.softbistro.api.github.component.entity.User;
 import com.softbistro.api.github.services.GitHubService;
 
@@ -41,7 +41,7 @@ public class GitHubController {
 	 * @return repository data
 	 */
 	@RequestMapping(value = "/repository/{user}/{repository}", method = RequestMethod.GET)
-	public Repository getRepositoryInfo(@PathVariable("user") String user,
+	public GitRepository getRepositoryInfo(@PathVariable("user") String user,
 			@PathVariable("repository") String repository) throws IOException {
 		return gitHubService.getRepositoryInfo(user, repository);
 	}
@@ -54,7 +54,7 @@ public class GitHubController {
 	 * @return repositories data
 	 */
 	@RequestMapping(value = "/repositories/{user}", method = RequestMethod.GET)
-	public List<Repository> getUserRepositories(@PathVariable("user") String user) throws Exception {
+	public List<GitRepository> getUserRepositories(@PathVariable("user") String user) throws Exception {
 		return gitHubService.getUserRepositories(user);
 	}
 

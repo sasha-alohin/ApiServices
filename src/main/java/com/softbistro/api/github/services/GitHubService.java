@@ -6,7 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.GitRepository;
 import com.softbistro.api.github.component.entity.User;
 import com.softbistro.api.github.component.service.GitHubDao;
 
@@ -36,7 +36,7 @@ public class GitHubService {
 	 *            - repository name
 	 * @return repository data
 	 */
-	public Repository getRepositoryInfo(String user, String repository) throws IOException {
+	public GitRepository getRepositoryInfo(String user, String repository) throws IOException {
 		return gitHubDao.getRepositoryInfo(user, repository);
 	}
 
@@ -47,7 +47,7 @@ public class GitHubService {
 	 *            - user name
 	 * @return repositories data
 	 */
-	public List<Repository> getUserRepositories(String user) throws Exception {
+	public List<GitRepository> getUserRepositories(String user) throws Exception {
 		return gitHubDao.getUserRepositories(user);
 	}
 
