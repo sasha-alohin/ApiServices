@@ -1,10 +1,10 @@
-package com.example.github.component.interfac;
+package com.softbistro.api.github.component.interfaces;
 
 import java.io.IOException;
 import java.util.List;
 
-import com.example.github.component.entity.Repository;
-import com.example.github.component.entity.User;
+import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.User;
 
 public interface GitHubInterface {
 

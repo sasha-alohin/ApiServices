@@ -1,4 +1,4 @@
-package com.example.github.controllers;
+package com.softbistro.api.github.controllers;
 
 import java.io.IOException;
 import java.util.List;
@@ -9,9 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.github.component.entity.Repository;
-import com.example.github.component.entity.User;
-import com.example.github.services.GitHubService;
+import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.User;
+import com.softbistro.api.github.services.GitHubService;
 
 @RestController
 public class GitHubController {

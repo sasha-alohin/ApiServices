@@ -1,4 +1,4 @@
-package com.example.github.component.service;
+package com.softbistro.api.github.component.service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,9 +14,9 @@ import java.util.Optional;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import com.example.github.component.entity.Repository;
-import com.example.github.component.entity.User;
-import com.example.github.component.interfac.GitHubInterface;
+import com.softbistro.api.github.component.entity.Repository;
+import com.softbistro.api.github.component.entity.User;
+import com.softbistro.api.github.component.interfaces.GitHubInterface;
 
 public class GitHubDao implements GitHubInterface {
 	private InputStream is;

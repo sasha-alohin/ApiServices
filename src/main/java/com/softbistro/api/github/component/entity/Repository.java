@@ -1,4 +1,4 @@
-package com.example.github.component.entity;
+package com.softbistro.api.github.component.entity;
 
 public class Repository {
 
