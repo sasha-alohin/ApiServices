@@ -1,6 +1,5 @@
 package com.softbistro.api.github.component.interfaces;
 
-import java.io.IOException;
 import java.util.List;
 
 import com.softbistro.api.github.component.entity.GitRepository;

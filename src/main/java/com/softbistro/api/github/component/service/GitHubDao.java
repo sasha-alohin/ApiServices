@@ -13,11 +13,11 @@ import java.util.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.stereotype.Repository;
 
 import com.softbistro.api.github.component.entity.GitRepository;
 import com.softbistro.api.github.component.entity.User;
 import com.softbistro.api.github.component.interfaces.GitHubInterface;
-import org.springframework.stereotype.Repository;
 
 @Repository
 public class GitHubDao implements GitHubInterface {

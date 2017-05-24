@@ -8,7 +8,13 @@ public class User {
 	private String location;
 
 	public User() {
-		super();
+	}
+
+	public User(Integer id, String login,String name, String location) {
+		this.login = login;
+		this.id = id;
+		this.name = name;
+		this.location = location;
 	}
 
 	public String getLogin() {
@@ -40,13 +46,6 @@ public class User {
 	}
 
 	public void setEmail(String location) {
-		this.location = location;
-	}
-
-	public User(Integer id, String login,String name, String location) {
-		this.login = login;
-		this.id = id;
-		this.name = name;
 		this.location = location;
 	}
 
