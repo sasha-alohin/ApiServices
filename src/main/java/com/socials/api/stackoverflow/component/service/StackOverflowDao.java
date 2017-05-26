@@ -1,15 +1,8 @@
 package com.socials.api.stackoverflow.component.service;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,12 +22,10 @@ import com.sun.jersey.api.client.filter.GZIPContentEncodingFilter;
 
 @Repository
 public class StackOverflowDao implements StackOverflowInterface {
-	private InputStream is;
 	private JSONObject json;
 	private String jsonText;
 	private JSONObject owner, jsonObject;
 	private JSONArray jsonArray;
-
 	private final String urlForAnswers = "https://api.stackexchange.com/2.2/answers?order=desc&sort=activity&site=";
 	private final String urlForComments = "https://api.stackexchange.com/2.2/comments?order=desc&sort=creation&site=";
 	private final String urlForQuestions = "https://api.stackexchange.com/2.2/questions?order=desc&sort=activity&site=";
