@@ -15,6 +15,13 @@ public class Comment {
 		this.score = score;
 	}
 
+	public Comment(Integer commentId, Integer postId, User owner, Integer score) {
+		this.commentId = commentId;
+		this.postId = postId;
+		this.owner = owner;
+		this.score = score;
+	}
+
 	public Integer getCommentId() {
 		return commentId;
 	}

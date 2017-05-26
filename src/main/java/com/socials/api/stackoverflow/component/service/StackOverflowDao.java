@@ -9,6 +9,7 @@ import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -19,6 +20,12 @@ import com.socials.api.stackoverflow.component.entity.Comment;
 import com.socials.api.stackoverflow.component.entity.Question;
 import com.socials.api.stackoverflow.component.entity.User;
 import com.socials.api.stackoverflow.component.interfaces.StackOverflowInterface;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.GZIPContentEncodingFilter;
 
 @Repository
 public class StackOverflowDao implements StackOverflowInterface {
@@ -26,11 +33,11 @@ public class StackOverflowDao implements StackOverflowInterface {
 	private JSONObject json;
 	private String jsonText;
 	private BufferedReader rd;
-	private JSONObject owner;
+	private JSONObject owner, jsonObject;
 	private JSONArray jsonArray;
 
 	private final String urlForAnswers = "https://api.stackexchange.com/2.2/answers?order=desc&sort=activity&site=";
-	private final String urlForComments = "https://api.stackexchange.com/2.2/comments?order=desc&sort=activity&site=";
+	private final String urlForComments = "https://api.stackexchange.com/2.2/comments?order=desc&sort=creation&site=";
 	private final String urlForQuestions = "https://api.stackexchange.com/2.2/questions?order=desc&sort=activity&site=";
 	private final String urlForSites = "https://api.stackexchange.com/2.2/sites";
 
@@ -44,17 +51,16 @@ public class StackOverflowDao implements StackOverflowInterface {
 	 */
 	@Override
 	public List<Answer> getAnswers(String site) throws IOException {
-		is = new URL(urlForAnswers + site).openStream();
 		List<Answer> answers = new ArrayList<>();
-		rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-		jsonText = readAll(rd);
-		jsonArray = new JSONArray(jsonText);
+		jsonText = readAll(urlForAnswers + site);
+		jsonObject = new JSONObject(jsonText);
+		jsonArray = new JSONArray(jsonObject.get("items").toString());
 		for (Object object : jsonArray) {
 			json = new JSONObject(object.toString());
 			owner = json.getJSONObject("owner");
 			answers.add(new Answer(
 					new User(owner.getInt("user_id"), owner.getString("display_name"), owner.getString("user_type"),
-							owner.getInt("reputation"), owner.getString("url")),
+							owner.getInt("reputation"), owner.getString("link")),
 					json.getInt("answer_id"), json.getInt("question_id"), json.getBoolean("is_accepted"),
 					json.getInt("score")));
 		}
@@ -69,10 +75,9 @@ public class StackOverflowDao implements StackOverflowInterface {
 	 */
 	@Override
 	public List<String> getSites() throws IOException {
-		is = new URL(urlForSites).openStream();
 		List<String> sites = new ArrayList<>();
 		rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-		jsonText = readAll(rd);
+		jsonText = readAll(urlForSites);
 		jsonArray = new JSONArray(jsonText);
 		for (Object object : jsonArray) {
 			json = new JSONObject(object.toString());
@@ -91,23 +96,30 @@ public class StackOverflowDao implements StackOverflowInterface {
 	 */
 	@Override
 	public List<Comment> getComments(String site) throws IOException {
-		JSONObject replyToUser;
-		is = new URL(urlForComments + site).openStream();
+		JSONObject replyToUser = null;
 		List<Comment> comments = new ArrayList<>();
-		rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-		jsonText = readAll(rd);
-		jsonArray = new JSONArray(jsonText);
+		jsonText = readAll(urlForComments + site);
+		jsonObject = new JSONObject(jsonText);
+		jsonArray = new JSONArray(jsonObject.get("items").toString());
 		for (Object object : jsonArray) {
 			json = new JSONObject(object.toString());
 			owner = json.getJSONObject("owner");
-			replyToUser = json.getJSONObject("reply_to_user");
-			comments.add(new Comment(json.getInt("comment_id"), json.getInt("post_id"),
-					new User(owner.getInt("user_id"), owner.getString("display_name"), owner.getString("user_type"),
-							owner.getInt("reputation"), owner.getString("url")),
-					new User(replyToUser.getInt("user_id"), replyToUser.getString("display_name"),
-							replyToUser.getString("user_type"), replyToUser.getInt("reputation"),
-							replyToUser.getString("url")),
-					json.getInt("score")));
+			if (json.has("reply_to_user")) {
+				replyToUser = json.getJSONObject("reply_to_user");
+				comments.add(new Comment(json.getInt("comment_id"), json.getInt("post_id"),
+						new User(owner.getInt("user_id"), owner.getString("display_name"), owner.getString("user_type"),
+								owner.getInt("reputation"), owner.getString("link")),
+						new User(replyToUser.getInt("user_id"), replyToUser.getString("display_name"),
+								replyToUser.getString("user_type"), replyToUser.getInt("reputation"),
+								replyToUser.getString("link")),
+						json.getInt("score")));
+			} else {
+
+				comments.add(new Comment(json.getInt("comment_id"),
+						json.getInt("post_id"), new User(owner.getInt("user_id"), owner.getString("display_name"),
+								owner.getString("user_type"), owner.getInt("reputation"), owner.getString("link")),
+						json.getInt("score")));
+			}
 		}
 		return comments;
 	}
@@ -122,17 +134,16 @@ public class StackOverflowDao implements StackOverflowInterface {
 	 */
 	@Override
 	public List<Question> getQuestions(String site) throws IOException {
-		is = new URL(urlForQuestions + site).openStream();
 		List<Question> questions = new ArrayList<>();
-		rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-		jsonText = readAll(rd);
-		jsonArray = new JSONArray(jsonText);
+		jsonText = readAll(urlForQuestions + site);
+		jsonObject = new JSONObject(jsonText);
+		jsonArray = new JSONArray(jsonObject.get("items").toString());
 		for (Object object : jsonArray) {
 			json = new JSONObject(object.toString());
 			owner = json.getJSONObject("owner");
 			questions.add(new Question(json.getInt("question_id"), json.getString("title"),
 					new User(owner.getInt("user_id"), owner.getString("display_name"), owner.getString("user_type"),
-							owner.getInt("reputation"), owner.getString("url")),
+							owner.getInt("reputation"), owner.getString("link")),
 					json.getString("link"), json.getBoolean("is_answered")));
 		}
 		return questions;
@@ -145,13 +156,15 @@ public class StackOverflowDao implements StackOverflowInterface {
 	 *            - reader holding stream
 	 * @return data from stream
 	 */
-	private String readAll(Reader rd) throws IOException {
-		StringBuilder sb = new StringBuilder();
-		int cp;
-		while ((cp = rd.read()) != -1) {
-			sb.append((char) cp);
-		}
-		return sb.toString();
+	private String readAll(String url) throws IOException {
+		ClientConfig config = new DefaultClientConfig();
+		Client client = Client.create(config);
+		client.addFilter(new GZIPContentEncodingFilter(false));
+		WebResource wr = client.resource(url);
+		ClientResponse response = null;
+		response = wr.get(ClientResponse.class);
+		return response.getEntity(String.class);
+
 	}
 
 }

@@ -57,7 +57,7 @@ public class StackOverflowController {
 	 * @return comments
 	 */
 	@RequestMapping(value = "/comments/{site}")
-	public List<Comment> getComments(String site) throws IOException {
+	public List<Comment> getComments(@PathVariable(value = "site") String site) throws IOException {
 		return stackOverflow.getComments(site);
 	}
 
@@ -70,7 +70,7 @@ public class StackOverflowController {
 	 * @return questions
 	 */
 	@RequestMapping(value = "/questions/{site}")
-	public List<Question> getQuestions(String site) throws IOException {
+	public List<Question> getQuestions(@PathVariable(value = "site") String site) throws IOException {
 		return stackOverflow.getQuestions(site);
 	}
 
