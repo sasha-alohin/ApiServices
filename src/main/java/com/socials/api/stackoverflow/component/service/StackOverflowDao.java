@@ -32,7 +32,6 @@ public class StackOverflowDao implements StackOverflowInterface {
 	private InputStream is;
 	private JSONObject json;
 	private String jsonText;
-	private BufferedReader rd;
 	private JSONObject owner, jsonObject;
 	private JSONArray jsonArray;
 
@@ -76,7 +75,6 @@ public class StackOverflowDao implements StackOverflowInterface {
 	@Override
 	public List<String> getSites() throws IOException {
 		List<String> sites = new ArrayList<>();
-		rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 		jsonText = readAll(urlForSites);
 		jsonArray = new JSONArray(jsonText);
 		for (Object object : jsonArray) {
