@@ -17,8 +17,8 @@ import com.socialdecorator.api.component.enteties.enteties_social.Activity;
 import com.socialdecorator.api.component.enteties.enteties_social.Comment;
 import com.socialdecorator.api.component.enteties.enteties_social.User;
 import com.socialdecorator.api.component.interfaces.Social;
+import com.socialdecorator.api.configuration.TwitterAuthorization;
 import com.socialdecorator.api.configuration.TwitterConfiguration;
-import com.socials.api.twitter.component.services.TwitterAuthorization;
 
 import twitter4j.Paging;
 import twitter4j.ResponseList;
@@ -35,7 +35,7 @@ import twitter4j.TwitterException;
 @EnableConfigurationProperties(TwitterConfiguration.class)
 @Service
 public class TwitterDao implements Social {
-	private static final Logger LOGGER = Logger.getLogger(TwitterDao.class);
+	private final Logger LOGGER = Logger.getLogger(TwitterDao.class);
 	@Autowired
 	private TwitterConfiguration twitterConfiguration;
 	@Autowired
@@ -47,6 +47,7 @@ public class TwitterDao implements Social {
 	private ResponseList<twitter4j.User> tempUsers;
 	private twitter4j.User userTemp;
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	private final String ERROR_MESSAGE = "Rate limit exceed. Wait 15 minutes to resume";
 
 	@Override
 	public List<User> getUser(UserSearch user) throws Exception {
@@ -55,12 +56,12 @@ public class TwitterDao implements Social {
 		authorizeClient();
 		do {
 			if (isFullRateLimitStatus(twitter)){
-				LOGGER.error("Rate limit exceed.");
+				LOGGER.error(ERROR_MESSAGE);
 				return users;
 			}
 				
 			if (isFullRateLimitEndpoint(twitter, "users")){
-				LOGGER.error("Rate limit exceed.");
+				LOGGER.error(ERROR_MESSAGE);
 				return users;}
 			tempUsers = null;
 			tempUsers = twitter.searchUsers(user.getName(), ++pageNumber);
@@ -82,11 +83,11 @@ public class TwitterDao implements Social {
 		authorizeClient();
 		do {
 			if (isFullRateLimitStatus(twitter)){
-				LOGGER.error("Rate limit exceed.");
+				LOGGER.error(ERROR_MESSAGE);
 				return retweets;
 			}
 			if (isFullRateLimitEndpoint(twitter, "statuses")){
-				LOGGER.error("Rate limit exceed.");
+				LOGGER.error(ERROR_MESSAGE);
 				return retweets;
 			}
 			tempTweets = null;
@@ -97,11 +98,11 @@ public class TwitterDao implements Social {
 				break;
 			for (Status tweetTemp : tempTweets) {
 				if (isFullRateLimitStatus(twitter)){
-					LOGGER.error("Rate limit exceed.");
+					LOGGER.error(ERROR_MESSAGE);
 					return retweets;
 				}
 				if (isFullRateLimitEndpoint(twitter, "statuses")){
-					LOGGER.error("Rate limit exceed.");
+					LOGGER.error(ERROR_MESSAGE);
 					return retweets;
 				}
 				tempRetweets = twitter.getRetweets(tweetTemp.getId());
@@ -129,11 +130,11 @@ public class TwitterDao implements Social {
 		do {
 			tempTweets = null;
 			if (isFullRateLimitStatus(twitter)){
-				LOGGER.error("Rate limit exceed.");
+				LOGGER.error(ERROR_MESSAGE);
 				return tweets;
 			}
 			if (isFullRateLimitEndpoint(twitter, "statuses")){
-				LOGGER.error("Rate limit exceed.");
+				LOGGER.error(ERROR_MESSAGE);
 				return tweets;
 			}
 			page = new Paging(++pageNumber, 100);
@@ -153,9 +154,16 @@ public class TwitterDao implements Social {
 		return tweets;
 	}
 
-	private Boolean isFullRateLimitEndpoint(Twitter twitter, String endpoint) throws TwitterException {
-		return twitter.getRateLimitStatus(endpoint).entrySet().stream()
-				.filter(key -> key.getValue().getRemaining() <= 1).findFirst().orElse(null) != null;
+	private Boolean isFullRateLimitEndpoint(Twitter twitter, String endpoint) {
+		Boolean isFull=true;
+		try {
+			isFull =  twitter.getRateLimitStatus(endpoint).entrySet().stream()
+					.filter(key -> key.getValue().getRemaining() <= 1).findFirst().orElse(null) != null;	
+		} catch (TwitterException e) {
+			LOGGER.error("Rate limit for today exceed.");
+		}
+		return isFull;
+		
 	}
 
 	//180 requests per 15 min on getting rate limit

@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -45,6 +46,9 @@ public class GitHubDao implements Social {
 	private final String urlForRateLimit = "https://api.github.com/rate_limit?" + "client_id=" + clientId
 			+ "&client_secret=" + clientSecret;
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+	private final String ERROR_MESSAGE_READER = "Can't read from GitHub API.";
+	private final String ERROR_MESSAGE = "Rate limit for today exceed";
+	private final Logger LOGGER = Logger.getLogger(StackOverflowDao.class);
 
 	@Override
 	public List<User> getUser(UserSearch user) throws Exception {
@@ -52,8 +56,10 @@ public class GitHubDao implements Social {
 		pageNumber = 0;
 		jsonArray = null;
 		do {
-			if (isFullRateLimit())
+			if (isFullRateLimit()){
+				LOGGER.error(ERROR_MESSAGE);
 				return users;
+			}
 			jsonText = readAll(urlForUser + user.getName() + "&page=" + (++pageNumber) + "&client_id=" + clientId
 					+ "&client_secret=" + clientSecret);
 			jsonArray = new JSONArray(jsonText);
@@ -64,7 +70,7 @@ public class GitHubDao implements Social {
 				users.add(new User(json.getInt("id"), json.getString("login"), json.getString("type"),
 						json.getString("html_url"), json.getString("repos_url"), json.getString("followers_url")));
 			}
-		} while (pageNumber <= user.getNumberOfPages());
+		} while (pageNumber < user.getNumberOfPages());
 		return users;
 	}
 
@@ -73,8 +79,10 @@ public class GitHubDao implements Social {
 		List<Comment> comments = new ArrayList<>();
 		pageNumber = 0;
 		do {
-			if (isFullRateLimit())
+			if (isFullRateLimit()){
+				LOGGER.error(ERROR_MESSAGE);
 				return comments;
+			}
 			jsonText = readAll(urlForRepositories + comment.getUser() + "/" + comment.getRepository()
 					+ "/comments?per_page=100&page=" + (++pageNumber) + "&client_id=" + clientId + "&client_secret="
 					+ clientSecret);
@@ -92,7 +100,7 @@ public class GitHubDao implements Social {
 						sdf.format(sdf.parse(json.getString("created_at"))),
 						sdf.format(sdf.parse(json.getString("updated_at")))));
 			}
-		} while (pageNumber <= comment.getNumberOfPages());
+		} while (pageNumber < comment.getNumberOfPages());
 		return comments;
 	}
 
@@ -102,8 +110,10 @@ public class GitHubDao implements Social {
 		List<Activity> activities = new ArrayList<>();
 		pageNumber = 0;
 		do {
-			if (isFullRateLimit())
+			if (isFullRateLimit()){
+				LOGGER.error(ERROR_MESSAGE);
 				return activities;
+			}
 			jsonText = readAll(urlForEvents + "&page=" + (++pageNumber) + "&client_id=" + clientId + "&client_secret="
 					+ clientSecret);
 			jsonArray = new JSONArray(jsonText);
@@ -134,10 +144,18 @@ public class GitHubDao implements Social {
 		ClientConfig config = new DefaultClientConfig();
 		Client client = Client.create(config);
 		client.addFilter(new GZIPContentEncodingFilter(false));
-		WebResource wr = client.resource(url);
-		ClientResponse response = null;
-		response = wr.get(ClientResponse.class);
-		return response.getEntity(String.class);
+		String responseData="";
+		try {
+			WebResource wr = client.resource(url);
+			ClientResponse response = null;
+			response = wr.get(ClientResponse.class);
+			responseData = response.getEntity(String.class);
+			
+		} catch (Exception e) {
+			LOGGER.error(ERROR_MESSAGE_READER);
+		}
+		
+		return responseData;
 	}
 
 	private Boolean isFullRateLimit() throws Exception {

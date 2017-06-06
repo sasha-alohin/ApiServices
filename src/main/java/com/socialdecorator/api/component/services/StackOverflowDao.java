@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -44,6 +45,8 @@ public class StackOverflowDao implements Social {
 	private OAuthRequest request;
 	private Response response;
 	private int pageNumber;
+	private final Logger LOGGER = Logger.getLogger(StackOverflowDao.class);
+	private final String ERROR_MESSAGE = "Rate limit for today exceed.";
 
 	@Override
 	public List<User> getUser(UserSearch user) throws Exception {
@@ -51,8 +54,6 @@ public class StackOverflowDao implements Social {
 		pageNumber = 0;
 		setAccessToken();
 		do {
-			if (isFullRateLimit(jsonObject))
-				return users;
 			request = new OAuthRequest(Verb.GET, baseUrl + "users?pagesize=100&order=desc&sort=reputation&site="
 					+ user.getSite() + "&page=" + (++pageNumber) + "&key=" + key);
 			service.signRequest(accessToken, request);
@@ -78,6 +79,10 @@ public class StackOverflowDao implements Social {
 							json.getString("user_type"), json.getInt("reputation")));
 				}
 			}
+			if (isFullRateLimit(jsonObject)) {
+				LOGGER.error(ERROR_MESSAGE);
+				return users;
+			}
 		} while (jsonObject.getBoolean("has_more") && pageNumber < user.getNumberOfPages());
 		return users;
 	}
@@ -88,8 +93,6 @@ public class StackOverflowDao implements Social {
 		pageNumber = 0;
 		setAccessToken();
 		do {
-			if (isFullRateLimit(jsonObject))
-				return comments;
 			request = new OAuthRequest(Verb.GET, baseUrl + "comments?pagesize=100&order=desc&sort=creation&site="
 					+ comment.getSite() + "&page=" + (++pageNumber) + "&key=" + key);
 			service.signRequest(accessToken, request);
@@ -99,6 +102,10 @@ public class StackOverflowDao implements Social {
 				return comments;
 			jsonArray = new JSONArray(jsonObject.get("items").toString());
 			generateComments(jsonArray, comments);
+			if (isFullRateLimit(jsonObject)) {
+				LOGGER.error(ERROR_MESSAGE);
+				return comments;
+			}
 		} while (jsonObject.getBoolean("has_more") && pageNumber < comment.getNumberOfPages());
 		return comments;
 	}
@@ -131,6 +138,10 @@ public class StackOverflowDao implements Social {
 				} else
 					activities.add(new Activity(json.getInt("post_id"), json.getString("post_type"),
 							json.getString("link"), json.getInt("score")));
+			}
+			if (isFullRateLimit(jsonObject)) {
+				LOGGER.error(ERROR_MESSAGE);
+				return activities;
 			}
 			Thread.sleep(10000);
 		} while (jsonObject.getBoolean("has_more") && pageNumber < activity.getNumberOfPages());

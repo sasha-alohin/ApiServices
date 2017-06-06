@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ import com.sun.jersey.api.client.filter.GZIPContentEncodingFilter;
  */
 @Service
 public class GooglePlusDao implements Social {
+	private final Logger LOGGER = Logger.getLogger(TwitterDao.class);
 	private final String urlForUser = "https://www.googleapis.com/plus/v1/people?key=AIzaSyDVZr7PnltQU-7vVWqnaE5d-PWmBrRnjlA&maxResults=50&query=";
 	private final String urlForComments = "https://www.googleapis.com/plus/v1/activities/";
 	private final String urlForActivities = "https://www.googleapis.com/plus/v1/activities?key=AIzaSyDVZr7PnltQU-7vVWqnaE5d-PWmBrRnjlA&maxResults=20&query=";
@@ -39,6 +41,7 @@ public class GooglePlusDao implements Social {
 	private JSONArray jsonArray;
 	private String pageToken;
 	private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+	private final String ERROR_MESSAGE = "Can't read from Google+ API.";
 
 	@Override
 	public List<User> getUser(UserSearch user) throws Exception {
@@ -132,30 +135,20 @@ public class GooglePlusDao implements Social {
 	 *            - reader holding stream
 	 * @return data from stream
 	 */
-	private String readAll(String url) throws IOException {
-		// String responseData = "";
-		// ClientResponse response = null;
-		// ClientConfig config = new DefaultClientConfig();
-		// try {
-		// Client client = Client.create(config);
-		// client.addFilter(new GZIPContentEncodingFilter(false));
-		// WebResource wr = client.resource(url);
-		// response = wr.get(ClientResponse.class);
-		// if (response.getStatus() != 200)
-		// throw new Exception();
-		// responseData = response.getEntity(String.class);
-		// } catch (Exception e) {
-		// System.out.println("The fatal error with Google+ API:" +
-		// e.getMessage());
-		// }
-		// return responseData;
+	private String readAll(String url) {
 		ClientConfig config = new DefaultClientConfig();
 		Client client = Client.create(config);
 		client.addFilter(new GZIPContentEncodingFilter(false));
-		WebResource wr = client.resource(url);
-		ClientResponse response = null;
-		response = wr.get(ClientResponse.class);
-		return response.getEntity(String.class);
+		String responseData="";
+		try {
+			WebResource wr = client.resource(url);
+			ClientResponse response = null;
+			response = wr.get(ClientResponse.class);
+			responseData = response.getEntity(String.class);
+		} catch (Exception e) {
+			LOGGER.error(ERROR_MESSAGE);
+		}
+		return responseData;
 	}
 
 }
