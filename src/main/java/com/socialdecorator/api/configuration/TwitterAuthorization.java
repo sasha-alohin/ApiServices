@@ -7,8 +7,8 @@ import twitter4j.TwitterFactory;
 import twitter4j.conf.ConfigurationBuilder;
 /**
  * Makes authorization for Twitter API
+ * 
  * @author alex_alokhin
- *
  */
 @Repository
 public class TwitterAuthorization {
