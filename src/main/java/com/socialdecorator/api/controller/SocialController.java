@@ -19,9 +19,16 @@ import com.socialdecorator.api.service.SocialService;
 
 @RestController
 public class SocialController {
+	
 	@Autowired
 	private SocialService socialService;
 
+	@RequestMapping("/")
+    public String home() {
+        return "Hello Docker World";
+    }
+	
+	
 	@RequestMapping(value = "/{social}/getUsers")
 	public List<User> getUser(@PathVariable(value = "social") String social,
 			@RequestParam(value = "site", required = false) String site,
