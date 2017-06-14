@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-RESTfull web service using Spring, that retrieves data about users, activities and other events from social networks and web sites, such as Twitter, Facebook, GitHub, StackOverflow, Google+. The main purpose of service is to gather statistic of the data, mentioned above.
-=======
 # ApiServices
-RESTfull web service using Spring, that retrieves data about users, activities and other events from social networks and web sites, such as Twitter, Facebook, GitHub, StackOverflow, Google+. The main purpose of service is to gather statistic of the data, mentioned above
->>>>>>> 783f1b679e0bf4f13519d059ffb95981a045bb96
+RESTfull web service created with Spring Framework that retrieves data about users, activities and other events from social networks and web sites, such as Twitter, Facebook, GitHub, StackOverflow, Google+. Project use Docker - containers that eliminates “works on my machine” problems when collaborating on code with co-workers.Also configured Jenkins job for the project on the server that : rebuild project, create docker container and run it.The main purpose of service is to gather data from the social networks
+
